@@ -12,7 +12,7 @@ const Layout = ({children, title}: LayoutProps) => {
             <Head>
                 <title>{title}</title>
             </Head>
-            <Container maxW={'7xl'}>
+            <Container maxW={'7xl'} width={'100%'}>
                 {children}
             </Container>
         </>
