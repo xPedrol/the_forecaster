@@ -88,7 +88,7 @@ const Home: NextPage = () => {
                     <GridItem colSpan={{base: 12}}>
                         <Alert status="success" variant="solid" backgroundColor={'teal.400'}>
                             <Icon as={BsCheckCircleFill} me={2}/>
-                            The standard forecast is about your location. If you have got us permission to get it.
+                            The standard forecast will use your current location if you give permission to access it.
                         </Alert>
                     </GridItem>
                     {data &&
