@@ -14,7 +14,7 @@ import {
     Select,
     Stack,
     Text,
-    Tooltip
+    Tooltip, VStack
 } from "@chakra-ui/react";
 import {useQuery} from 'react-query';
 import {last15Days} from "../services/forecast";
@@ -96,8 +96,7 @@ const Home: NextPage = () => {
                             <Stack spacing={4} direction={{base: 'column', lg: 'row'}}>
                                 <Stack justifyContent={{base: 'center', lg: 'normal'}}
                                        direction={{base: 'column', md: 'row', lg: 'column'}} spacing={4}>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden"
-                                         position={'sticky'} top={5}>
+                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={5} overflow="hidden">
                                         <Box p="6">
                                             <Box display="flex" alignItems="center" justifyContent={'space-between'}>
                                                 <Box display="flex">
@@ -135,8 +134,7 @@ const Home: NextPage = () => {
                                             </Stack>
                                         </Box>
                                     </Box>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden"
-                                         position={'sticky'} top={5}>
+                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={145} overflow="hidden">
                                         <Box p="6">
                                             <Box display="flex" alignItems="center" justifyContent={'space-between'}>
                                                 <Box display="flex" alignItems={'center'}>
@@ -184,16 +182,22 @@ const Home: NextPage = () => {
                                                 <Box py={3} borderRadius="lg">
                                                     <Box display="flex" alignItems="center"
                                                          justifyContent={'space-between'}>
-                                                        <Box
-                                                            color="gray.500"
-                                                            fontWeight="semibold"
-                                                            letterSpacing="wide"
-                                                            fontSize="xs"
-                                                            textTransform="uppercase"
-                                                            ml="2"
-                                                        >
-                                                            {dayjs(item.dt_txt).format('DD/MM/YYYY HH:mm')}
-                                                        </Box>
+                                                        <Stack direction={'column'} spacing={0} justifyContent={'center'}>
+                                                            <Box
+                                                                color="gray.700"
+                                                                fontWeight="semibold"
+                                                                letterSpacing="wide"
+                                                                fontSize="xs"
+                                                                textTransform="uppercase"
+                                                            >
+                                                                {dayjs(item.dt_txt).format('DD/MM - HH:mm')}
+                                                            </Box>
+                                                            <Text color="gray.500"
+                                                                  fontWeight="semibold"
+                                                                  letterSpacing="wide"
+                                                                  fontSize="x-small"
+                                                                  textTransform="uppercase">{item.weather[0].description}</Text>
+                                                        </Stack>
                                                         <Tooltip label="Show more">
                                                             <Box cursor={'pointer'}>
                                                                 <Icon as={AiOutlineInfoCircle}/>
