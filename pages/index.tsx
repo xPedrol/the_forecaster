@@ -11,7 +11,7 @@ import {
     Grid,
     GridItem,
     Heading,
-    Select,
+    Select, Spinner,
     Stack,
     Text,
     Tooltip, VStack
@@ -26,6 +26,7 @@ import {TiWeatherWindy} from "react-icons/ti";
 import {IoWaterOutline} from "react-icons/io5";
 import {AiOutlineInfoCircle} from "react-icons/ai";
 import {useEffect, useState} from "react";
+import {BiSearchAlt} from "react-icons/bi";
 
 const Home: NextPage = () => {
     const [longitude, setLongitude] = useState<number>();
@@ -36,7 +37,7 @@ const Home: NextPage = () => {
             setLatitude(position.coords.latitude);
         });
     }, []);
-    const {data} = useQuery('forecast_last_15_days', async () => {
+    const {data,isLoading,isFetched} = useQuery('forecast_last_15_days', async () => {
         const data = await last15Days(latitude, longitude);
         return data.data;
     }, {
@@ -96,7 +97,8 @@ const Home: NextPage = () => {
                             <Stack spacing={4} direction={{base: 'column', lg: 'row'}}>
                                 <Stack justifyContent={{base: 'center', lg: 'normal'}}
                                        direction={{base: 'column', md: 'row', lg: 'column'}} spacing={4}>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={5} overflow="hidden">
+                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={5}
+                                         overflow="hidden">
                                         <Box p="6">
                                             <Box display="flex" alignItems="center" justifyContent={'space-between'}>
                                                 <Box display="flex">
@@ -134,7 +136,8 @@ const Home: NextPage = () => {
                                             </Stack>
                                         </Box>
                                     </Box>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={145} overflow="hidden">
+                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={145}
+                                         overflow="hidden">
                                         <Box p="6">
                                             <Box display="flex" alignItems="center" justifyContent={'space-between'}>
                                                 <Box display="flex" alignItems={'center'}>
@@ -182,7 +185,8 @@ const Home: NextPage = () => {
                                                 <Box py={3} borderRadius="lg">
                                                     <Box display="flex" alignItems="center"
                                                          justifyContent={'space-between'}>
-                                                        <Stack direction={'column'} spacing={0} justifyContent={'center'}>
+                                                        <Stack direction={'column'} spacing={0}
+                                                               justifyContent={'center'}>
                                                             <Box
                                                                 color="gray.700"
                                                                 fontWeight="semibold"
@@ -232,6 +236,45 @@ const Home: NextPage = () => {
                                     </Grid>
                                 </Box>
                             </Stack>
+                        </GridItem>
+                    }
+                    {!data && isLoading &&
+                        <GridItem colSpan={12} mt={7}>
+                            <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
+                                <Spinner color={'teal'} size={'lg'}/>
+                                <Text
+                                    fontWeight="semibold"
+                                    letterSpacing="wide"
+                                    fontSize="xs"
+                                    ms={2}
+                                    textTransform="uppercase">Loading...</Text>
+                            </Box>
+                        </GridItem>
+                    }
+                    {!data && !isLoading && isFetched &&
+                        <GridItem colSpan={12} mt={7}>
+                            <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
+                                <Spinner color={'teal'} size={'lg'}/>
+                                <Text
+                                    fontWeight="semibold"
+                                    letterSpacing="wide"
+                                    fontSize="xs"
+                                    ms={2}
+                                    textTransform="uppercase">Not Found</Text>
+                            </Box>
+                        </GridItem>
+                    }
+                    {!data && !isLoading && !isFetched &&
+                        <GridItem colSpan={12} mt={7}>
+                            <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
+                                <Icon as={BiSearchAlt} color={'teal'} fontSize={'xx-large'}/>
+                                <Text
+                                    fontWeight="semibold"
+                                    letterSpacing="wide"
+                                    fontSize="xs"
+                                    ms={2}
+                                    textTransform="uppercase">Choose a location to see the weather</Text>
+                            </Box>
                         </GridItem>
                     }
                 </Grid>
