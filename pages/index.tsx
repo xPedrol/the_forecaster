@@ -1,41 +1,180 @@
 import type {NextPage} from 'next';
 import Layout from "../components/Layout";
-import {Flex, FormControl, FormLabel, Grid, GridItem, Input, Text} from "@chakra-ui/react";
 import {
-  useQuery
+    Badge,
+    Box,
+    Divider,
+    Flex,
+    FormControl,
+    FormLabel,
+    Grid,
+    GridItem, Heading,
+    Input,
+    Select,
+    Stack,
+    Text
+} from "@chakra-ui/react";
+import {
+    useQuery
 } from 'react-query';
 import {last15Days} from "../services/forecast";
+import {statesConstant} from "../constants/States.constant";
+import {CalendarIcon, MoonIcon, StarIcon, SunIcon} from "@chakra-ui/icons";
 
 const Home: NextPage = () => {
-  const query = useQuery('forecast_last_15_days', async () => {
-    const data = await last15Days();
-    return data.data;
-  });
-  console.warn(query.data);
-  return (
-  <Layout title={'The Forecaster'}>
-   <Flex justifyContent={'center'} alignItems={'center'} height={'100vh'}>
-     <Grid templateColumns={'repeat(12,1fr)'} gap={6} width={'100%'}>
-       <GridItem colSpan={6}>
-         <FormControl>
-           <FormLabel>
-             State
-           </FormLabel>
-           <Input/>
-         </FormControl>
-       </GridItem>
-       <GridItem colSpan={6}>
-         <FormControl>
-           <FormLabel>
-             City
-           </FormLabel>
-           <Input/>
-         </FormControl>
-       </GridItem>
-     </Grid>
-   </Flex>
-  </Layout>
-  )
-}
+    const {data} = useQuery('forecast_last_15_days', async () => {
+        const data = await last15Days("-19.58106000", "-42.64953000");
+        return data.data;
+    });
+    const states = statesConstant;
+    console.warn(data);
+    return (
+        <Layout title={'The Forecaster'}>
+            <Flex justifyContent={'center'}>
+                <Grid templateColumns={'repeat(12,1fr)'} gap={6} width={'100%'}>
+                    <GridItem colSpan={6}>
+                        <FormControl>
+                            <FormLabel>
+                                State
+                            </FormLabel>
+                            <Select>
+                                <option disabled={true}>Select a State...</option>
+                                {states.map((state) =>
+                                    <option key={state.code} value={state.code}>{state.name}</option>
+                                )}
+                            </Select>
+                        </FormControl>
+                    </GridItem>
+                    <GridItem colSpan={6}>
+                        <FormControl>
+                            <FormLabel>
+                                City
+                            </FormLabel>
+                            <Input/>
+                        </FormControl>
+                    </GridItem>
+                    {data &&
+                        <GridItem colSpan={12}>
+                            <Stack spacing={4} direction={{base:'column',lg:'row'}} >
+                                <Box>
+                                    <Box minW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' position={'sticky'} top={5}>
+                                        <Box p='6'>
+                                            <Box display='flex' alignItems='baseline'>
+                                                <Badge borderRadius='full' px='2' colorScheme='teal'>
+                                                    {data.city.name}
+                                                </Badge>
+                                                <Box
+                                                    color='gray.500'
+                                                    fontWeight='semibold'
+                                                    letterSpacing='wide'
+                                                    fontSize='xs'
+                                                    textTransform='uppercase'
+                                                    ml='2'
+                                                >
+                                                    MG &bull; {data.city.country}
+                                                </Box>
+                                            </Box>
 
-export default Home
+                                            <Divider my={2}/>
+                                            <Stack direction={['column','row']} justifyContent={'space-between'}>
+                                                <Box>
+                                                    <SunIcon me={2}/>
+                                                    5h
+                                                    <Box as='span' color='gray.600' fontSize='sm'>
+                                                        &bull; Nascer do sol
+                                                    </Box>
+                                                </Box>
+                                                <Box>
+                                                    <MoonIcon me={2}/>
+                                                    16h
+                                                    <Box as='span' color='gray.600' fontSize='sm'>
+                                                        &bull; Por do sol
+                                                    </Box>
+                                                </Box>
+                                            </Stack>
+
+                                            <Box display='flex' mt='2' alignItems='center'>
+                                                <CalendarIcon color={'teal.500'}/>
+                                                <Box as='span' ml='2' color='gray.600' fontSize='sm'>
+                                                    <Box
+                                                        mt='1'
+                                                    >
+                                                        <Text
+                                                            as='h6'
+                                                            lineHeight='tight'
+                                                            noOfLines={1}>{data.city.population} habitantes</Text>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                                <Box w={'100%'}>
+                                    <Heading fontSize={'sm'}>Previsão para os próximos 15 dias</Heading>
+                                    <Divider mt={1} mb={5}/>
+                                    <Grid templateColumns={'repeat(12,1fr)'} gap={6}>
+                                        {data.list.map((item:any, index:number) => (
+                                            <GridItem colSpan={4} key={index}>
+                                                <Box bg={'blue.500'} p={6} borderRadius='lg'>
+                                                    <Box display='flex' alignItems='baseline'>
+                                                        <Badge borderRadius='full' px='2'>
+                                                            Dia 2
+                                                        </Badge>
+                                                        <Box
+                                                            color='gray.500'
+                                                            fontWeight='semibold'
+                                                            letterSpacing='wide'
+                                                            fontSize='xs'
+                                                            textTransform='uppercase'
+                                                            ml='2'
+                                                        >
+                                                            MG &bull; {data.city.country}
+                                                        </Box>
+                                                    </Box>
+
+                                                    <Divider my={2}/>
+                                                    <Stack direction={['column','row']} justifyContent={'space-between'}>
+                                                        <Box>
+                                                            <SunIcon me={2}/>
+                                                            5h
+                                                            <Box as='span' color='gray.600' fontSize='sm'>
+                                                                &bull; Nascer do sol
+                                                            </Box>
+                                                        </Box>
+                                                        <Box>
+                                                            <MoonIcon me={2}/>
+                                                            16h
+                                                            <Box as='span' color='gray.600' fontSize='sm'>
+                                                                &bull; Por do sol
+                                                            </Box>
+                                                        </Box>
+                                                    </Stack>
+
+                                                    <Box display='flex' mt='2' alignItems='center'>
+                                                        <CalendarIcon color={'teal.500'}/>
+                                                        <Box as='span' ml='2' color='gray.600' fontSize='sm'>
+                                                            <Box
+                                                                mt='1'
+                                                            >
+                                                                <Text
+                                                                    as='h6'
+                                                                    lineHeight='tight'
+                                                                    noOfLines={1}>{data.city.population} habitantes</Text>
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            </GridItem>
+                                        ))}
+                                    </Grid>
+                                </Box>
+                            </Stack>
+                        </GridItem>
+                    }
+                </Grid>
+            </Flex>
+        </Layout>
+    );
+};
+
+export default Home;

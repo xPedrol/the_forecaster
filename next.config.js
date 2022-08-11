@@ -3,8 +3,8 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
     env: {
-        API_URL: 'https://apiadvisor.climatempo.com.br/api',
-        API_TOKEN: '58cc85da276b2de25ae44e2704b174e8'
+        API_WEATHER_URL: 'https://api.openweathermap.org/data/2.5',
+        API_TOKEN: '03b8ccb4a95de7bd543b4d8ccc9bb33b'
     }
 };
 

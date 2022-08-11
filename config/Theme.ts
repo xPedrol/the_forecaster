@@ -9,6 +9,7 @@ const colors = {
 };
 const fonts = {
     body: 'Roboto Condensed, sans-serif',
+    heading: 'Roboto Condensed, sans-serif',
 };
 const theme = extendTheme({colors, fonts});
 export default theme;
