@@ -4,10 +4,10 @@ import {
     Alert,
     Badge,
     Box,
-    Button,
     Divider,
     Flex,
-    FormControl, FormHelperText,
+    FormControl,
+    FormHelperText,
     FormLabel,
     Grid,
     GridItem,
@@ -19,7 +19,7 @@ import {
     Tooltip
 } from "@chakra-ui/react";
 import {useQuery} from 'react-query';
-import {getLast15Days} from "../services/forecast";
+import {getLast15Days, getLast15DaysByCityName} from "../services/forecast";
 import {Icon} from "@chakra-ui/icons";
 import dayjs from "dayjs";
 import {BsCheckCircleFill, BsFillGeoAltFill, BsSunrise, BsSunset} from "react-icons/bs";
@@ -30,13 +30,7 @@ import {AiOutlineInfoCircle} from "react-icons/ai";
 import {useEffect, useState} from "react";
 import {BiSearchAlt} from "react-icons/bi";
 import {getCitiesByCountryAndState, getCountries, getStatesByCountry} from "../services/geoLocation";
-import {string} from "prop-types";
 
-type FormData = {
-    country: string;
-    state: string;
-    city: string;
-}
 const Home: NextPage = () => {
     const [longitude, setLongitude] = useState<number>();
     const [latitude, setLatitude] = useState<number>();
@@ -54,11 +48,17 @@ const Home: NextPage = () => {
         isLoading: isLoadingForecast,
         isFetched: isForecastFetched,
         refetch: refetchForecast
-    } = useQuery('forecast_last_15_days', async () => {
-        const data = await getLast15Days(latitude, longitude);
+    } = useQuery(['forecast_last_15_days',latitude,longitude,city], async () => {
+        console.warn('ent');
+        let data;
+        if (city) {
+            data = await getLast15DaysByCityName(city);
+        } else {
+            data = await getLast15Days(latitude, longitude);
+        }
         return data.data;
     }, {
-        enabled: !!latitude && !!longitude,
+        enabled: !!(latitude && longitude) || !!city,
         refetchOnWindowFocus: false
     });
     const {
@@ -112,6 +112,8 @@ const Home: NextPage = () => {
 
     const onCityChange = (e: any) => {
         setCity(e.target.value);
+        setLongitude(undefined);
+        setLatitude(undefined);
     };
 
     return (
@@ -158,10 +160,10 @@ const Home: NextPage = () => {
                                     {isLoadingCities && <FormHelperText>Loading...</FormHelperText>}
                                 </Flex>
                             </FormLabel>
-                            <Select defaultValue={''} disabled={!state || isLoadingCities}>
+                            <Select defaultValue={''} disabled={!state || isLoadingCities} onChange={onCityChange}>
                                 <option value={''}>Select a City...</option>
                                 {cities && cities.map((city: any) =>
-                                    <option key={city.id} value={city.id}>{city.name}</option>
+                                    <option key={city.id} value={city.name}>{city.name}</option>
                                 )}
                             </Select>
                         </FormControl>
@@ -203,7 +205,14 @@ const Home: NextPage = () => {
                                                     letterSpacing="wide"
                                                     fontSize="xs"
                                                     textTransform="uppercase"
-                                                    noOfLines={1}>{forecast.city.population} &bull; population</Text>
+                                                    noOfLines={1}>
+                                                    {forecast.city.population && forecast.city.population > 0 ?
+                                                        <>
+                                                            {forecast.city.population}
+                                                        </>
+                                                        :
+                                                        <>N/A</>
+                                                    } &bull; population</Text>
                                             </Box>
 
                                             <Divider my={2}/>

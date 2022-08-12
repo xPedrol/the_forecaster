@@ -11,3 +11,11 @@ export const getLast15Days = (lat: string | number | undefined, lon: string | nu
         }
     });
 };
+export const getLast15DaysByCityName = (cityName:string): Promise<AxiosResponse<any>> => {
+    return instance.get<any>(`${process.env.API_WEATHER_URL}/forecast`, {
+        params: {
+            q: cityName,
+            appid: process.env.API_WEATHER_TOKEN
+        }
+    });
+};
