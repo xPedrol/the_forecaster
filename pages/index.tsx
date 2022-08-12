@@ -11,10 +11,11 @@ import {
     Grid,
     GridItem,
     Heading,
-    Select, Spinner,
+    Select,
+    Spinner,
     Stack,
     Text,
-    Tooltip, VStack
+    Tooltip
 } from "@chakra-ui/react";
 import {useQuery} from 'react-query';
 import {last15Days} from "../services/forecast";
@@ -31,13 +32,23 @@ import {BiSearchAlt} from "react-icons/bi";
 const Home: NextPage = () => {
     const [longitude, setLongitude] = useState<number>();
     const [latitude, setLatitude] = useState<number>();
+    const [permission, setPermission] = useState<string>();
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(function (position) {
             setLongitude(position.coords.longitude);
             setLatitude(position.coords.latitude);
         });
+        navigator.permissions.query({name: "geolocation"})
+            .then(function (result) {
+                setPermission(result.state);
+                if (result.state === "granted") {
+                    console.warn("geolocation permission granted");
+                } else {
+                    console.warn("geolocation permission denied");
+                }
+            });
     }, []);
-    const {data,isLoading,isFetched} = useQuery('forecast_last_15_days', async () => {
+    const {data, isLoading, isFetched} = useQuery('forecast_last_15_days', async () => {
         const data = await last15Days(latitude, longitude);
         return data.data;
     }, {
@@ -45,6 +56,7 @@ const Home: NextPage = () => {
     });
     return (
         <Layout title={'The Forecaster'}>
+            {permission}
             <Flex justifyContent={'center'} mt={{base: 50, md: 100}}>
                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}>
                     <GridItem colSpan={{base: 12, md: 4}}>
