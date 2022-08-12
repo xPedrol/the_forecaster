@@ -33,7 +33,7 @@ import {getCitiesByCountryAndState, getCountries, getStatesByCountry} from "../s
 import {FaRegMoon, FaRegSun} from "react-icons/fa";
 
 const Home: NextPage = () => {
-    const { toggleColorMode,colorMode } = useColorMode();
+    const {toggleColorMode, colorMode} = useColorMode();
     const weatherCardTextColor = useColorModeValue('gray.700', 'gray.300');
     const cityCardTextColor = useColorModeValue('gray.600', 'gray.400');
     const [longitude, setLongitude] = useState<number>();
@@ -50,9 +50,8 @@ const Home: NextPage = () => {
     const {
         data: forecast,
         isLoading: isLoadingForecast,
-        isFetched: isForecastFetched,
-        refetch: refetchForecast
-    } = useQuery(['forecast_last_15_days',latitude,longitude,city], async () => {
+        isFetched: isForecastFetched
+    } = useQuery(['forecast_last_15_days', latitude, longitude, city], async () => {
         console.warn('ent');
         let data;
         if (city) {
@@ -67,8 +66,7 @@ const Home: NextPage = () => {
     });
     const {
         data: countries,
-        isLoading: isLoadingCountries,
-        isFetched: isCountriesFetched
+        isLoading: isLoadingCountries
     } = useQuery('countries', async () => {
         const data = await getCountries();
         return data.data;
@@ -78,9 +76,7 @@ const Home: NextPage = () => {
     });
     const {
         data: states,
-        isLoading: isLoadingStates,
-        isFetched: isStatesFetched,
-        refetch: refetchStates
+        isLoading: isLoadingStates
     } = useQuery(['states', country], async () => {
         const data = await getStatesByCountry(country);
         return data.data;
@@ -91,9 +87,7 @@ const Home: NextPage = () => {
     });
     const {
         data: cities,
-        isLoading: isLoadingCities,
-        isFetched: isCitiesFetched,
-        refetch: refetchCities
+        isLoading: isLoadingCities
     } = useQuery(['cities', country, state], async () => {
         const data = await getCitiesByCountryAndState(country, state);
         return data.data;
@@ -124,7 +118,7 @@ const Home: NextPage = () => {
         setCity('');
         setLongitude(undefined);
         setLatitude(undefined);
-    }
+    };
 
     return (
         <Layout title={'The Forecaster'}>
@@ -182,18 +176,21 @@ const Home: NextPage = () => {
                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'} mt={5}>
                     <GridItem colSpan={{base: 12}}>
                         <Alert status="success" variant="solid" backgroundColor={'teal.400'} display={'block'}>
-                            <Flex justifyContent={'space-between'} alignItems={'center'}>
+                            <Flex justifyContent={'space-between'} alignItems={'center'}
+                                  flexDirection={{base: 'column', md: 'row'}}>
                                 <Box display={'flex'} alignItems={'center'}>
                                     <Icon as={BsCheckCircleFill} me={2}/>
                                     <Box>
-                                        <Text>The standard forecast will use your current location if you give permission to
+                                        <Text>The standard forecast will use your current location if you give
+                                            permission to
                                             access it.</Text>
                                         <Text fontSize={'sm'}>If you are on a mobile device, you need to active the
                                             device location and reload the page.</Text>
                                     </Box>
                                 </Box>
                                 <Tooltip label={'Change page color'}>
-                                    <Button onClick={toggleColorMode} colorScheme={'teal'} variant='solid'>
+                                    <Button onClick={toggleColorMode} colorScheme={'teal'} variant="solid"
+                                            mt={{base: 4, md: 0}}>
                                         {colorMode === 'dark' ?
                                             <Icon as={FaRegSun}/> : <Icon as={FaRegMoon}/>
                                         }
@@ -205,154 +202,172 @@ const Home: NextPage = () => {
                     {forecast &&
                         <GridItem colSpan={12} mt={7}>
                             <Stack spacing={4} direction={{base: 'column', lg: 'row'}}>
-                                <Stack justifyContent={{base: 'center', lg: 'normal'}}
-                                       direction={{base: 'column', md: 'row', lg: 'column'}} spacing={4}>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={5}
-                                         overflow="hidden">
-                                        <Box p="6">
-                                            <Box display="flex" alignItems="center" justifyContent={'space-between'}>
-                                                <Box display="flex">
-                                                    <Badge borderRadius="full" px="2" colorScheme="teal">
-                                                        {forecast.city.name}
-                                                    </Badge>
-                                                </Box>
-                                                <Text
-                                                    as="h6"
-                                                    lineHeight="tight"
-                                                    color={cityCardTextColor}
-                                                    fontWeight="semibold"
-                                                    letterSpacing="wide"
-                                                    fontSize="xs"
-                                                    textTransform="uppercase"
-                                                    noOfLines={1}>
-                                                    {forecast.city.population && forecast.city.population > 0 ?
-                                                        <>
-                                                            {forecast.city.population}
-                                                        </>
-                                                        :
-                                                        <>N/A</>
-                                                    } &bull; population</Text>
-                                            </Box>
-
-                                            <Divider my={2}/>
-                                            <Stack direction={['column', 'row']} justifyContent={'space-between'}>
-                                                <Box display={'flex'} alignItems={'center'}>
-                                                    <Icon as={BsSunrise} me={2} fontSize={'x-large'}/>
-                                                    {dayjs.unix(forecast.city.sunrise).format('HH:mm ')}
-                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                        &bull; Sunrise
-                                                    </Box>
-                                                </Box>
-                                                <Box display={'flex'} alignItems={'center'}>
-                                                    <Icon as={BsSunset} me={2} fontSize={'x-large'}/>
-                                                    {dayjs.unix(forecast.city.sunset).format('HH:mm ')}
-                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                        &bull; Sunset
-                                                    </Box>
-                                                </Box>
-                                            </Stack>
-                                        </Box>
-                                    </Box>
-                                    <Box minW="sm" borderWidth="1px" borderRadius="lg" position={'sticky'} top={145}
-                                         overflow="hidden">
-                                        <Box p="6">
-                                            <Box display="flex" alignItems="center" justifyContent={'space-between'}>
-                                                <Box display="flex" alignItems={'center'}>
-                                                    <Icon as={BsFillGeoAltFill} me={2} fontSize={'x-large'}/>
-                                                    <Badge borderRadius="full" px="2" colorScheme="teal">
-                                                        About location
-                                                    </Badge>
-                                                </Box>
-                                                <Text
-                                                    as="h6"
-                                                    lineHeight="tight"
-                                                    color={cityCardTextColor}
-                                                    fontWeight="semibold"
-                                                    letterSpacing="wide"
-                                                    fontSize="xs"
-                                                    textTransform="uppercase"
-                                                    noOfLines={1}>{forecast.city.timezone} &bull; timezone</Text>
-                                            </Box>
-
-                                            <Divider my={2}/>
-                                            <Stack direction={['column', 'row']} justifyContent={'space-between'}>
-                                                <Box display={'flex'} alignItems={'center'}>
-                                                    {forecast.city.coord.lon}
-                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                        &bull; Longitude
-                                                    </Box>
-                                                </Box>
-                                                <Box display={'flex'} alignItems={'center'}>
-                                                    {forecast.city.coord.lat}
-                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                        &bull; Latitude
-                                                    </Box>
-                                                </Box>
-                                            </Stack>
-                                        </Box>
-                                    </Box>
-                                </Stack>
-                                <Box w={'100%'}>
-                                    <Heading fontSize={'sm'}>Forecast for the next 15 days</Heading>
-                                    <Divider mt={1} mb={5}/>
-                                    <Grid templateColumns={'repeat(12,1fr)'} gap={6}>
-                                        {forecast.list.map((item: any) => (
-                                            <GridItem colSpan={{base: 12, sm: 6, md: 3, lg: 4, xl: 3}}
-                                                      key={item.dt_txt}>
-                                                <Box py={3} borderRadius="lg">
-                                                    <Box display="flex" alignItems="center"
-                                                         justifyContent={'space-between'}>
-                                                        <Stack direction={'column'} spacing={0}
-                                                               justifyContent={'center'}>
-                                                            <Box
-
-                                                                color={weatherCardTextColor}
+                                <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}>
+                                    <GridItem colSpan={{base:12,lg:5}}>
+                                        <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'} position={'sticky'} top={5}>
+                                            <GridItem colSpan={{base: 12, md: 6, lg: 12}}>
+                                                <Box borderWidth="1px" borderRadius="lg" position={'sticky'} top={5}
+                                                     overflow="hidden">
+                                                    <Box p="6">
+                                                        <Box display="flex" alignItems="center"
+                                                             justifyContent={'space-between'}>
+                                                            <Box display="flex">
+                                                                <Badge borderRadius="full" px="2" colorScheme="teal">
+                                                                    {forecast.city.name}
+                                                                </Badge>
+                                                            </Box>
+                                                            <Text
+                                                                as="h6"
+                                                                lineHeight="tight"
+                                                                color={cityCardTextColor}
                                                                 fontWeight="semibold"
                                                                 letterSpacing="wide"
                                                                 fontSize="xs"
                                                                 textTransform="uppercase"
-                                                            >
-                                                                {dayjs(item.dt_txt).format('DD/MM - HH:mm')}
-                                                            </Box>
-                                                            <Text color="gray.500"
-                                                                  fontWeight="semibold"
-                                                                  letterSpacing="wide"
-                                                                  fontSize="x-small"
-                                                                  textTransform="uppercase">{item.weather[0].description}</Text>
-                                                        </Stack>
-                                                        <Tooltip label="Show more">
-                                                            <Box cursor={'pointer'}>
-                                                                <Icon as={AiOutlineInfoCircle}/>
-                                                            </Box>
-                                                        </Tooltip>
-                                                    </Box>
+                                                                noOfLines={1}>
+                                                                {forecast.city.population && forecast.city.population > 0 ?
+                                                                    <>
+                                                                        {forecast.city.population}
+                                                                    </>
+                                                                    :
+                                                                    <>N/A</>
+                                                                } &bull; population</Text>
+                                                        </Box>
 
-                                                    <Divider my={2}/>
-                                                    <Stack direction={['column']} justifyContent={'space-between'}>
-                                                        <Tooltip label="Temperature">
+                                                        <Divider my={2}/>
+                                                        <Stack direction={['column', 'row']}
+                                                               justifyContent={'space-between'}>
                                                             <Box display={'flex'} alignItems={'center'}>
-                                                                <Icon as={TbTemperature} me={2} fontSize={'large'}/>
-                                                                {(item.main.temp).toFixed(2)}°C
+                                                                <Icon as={BsSunrise} me={2} fontSize={'x-large'}/>
+                                                                {dayjs.unix(forecast.city.sunrise).format('HH:mm ')}
+                                                                <Box as="span" color={cityCardTextColor} fontSize="sm">
+                                                                    &bull; Sunrise
+                                                                </Box>
                                                             </Box>
-                                                        </Tooltip>
-                                                        <Tooltip label="Pressure">
                                                             <Box display={'flex'} alignItems={'center'}>
-                                                                <Icon as={TiWeatherWindy} me={2} fontSize={'large'}/>
-                                                                {item.main.pressure} hPa
+                                                                <Icon as={BsSunset} me={2} fontSize={'x-large'}/>
+                                                                {dayjs.unix(forecast.city.sunset).format('HH:mm ')}
+                                                                <Box as="span" color={cityCardTextColor} fontSize="sm">
+                                                                    &bull; Sunset
+                                                                </Box>
                                                             </Box>
-                                                        </Tooltip>
-                                                        <Tooltip label="Humidity">
-                                                            <Box display={'flex'} alignItems={'center'}>
-                                                                <Icon as={IoWaterOutline} me={2} fontSize={'large'}/>
-                                                                {item.main.humidity}%
-                                                            </Box>
-                                                        </Tooltip>
-                                                    </Stack>
+                                                        </Stack>
+                                                    </Box>
                                                 </Box>
                                             </GridItem>
-                                        ))}
-                                    </Grid>
-                                </Box>
+                                            <GridItem colSpan={{base: 12, md: 6, lg: 12}}>
+                                                <Box borderWidth="1px" borderRadius="lg" position={'sticky'} top={145}
+                                                     overflow="hidden">
+                                                    <Box p="6">
+                                                        <Box display="flex" alignItems="center"
+                                                             justifyContent={'space-between'}>
+                                                            <Box display="flex" alignItems={'center'}>
+                                                                <Icon as={BsFillGeoAltFill} me={2}
+                                                                      fontSize={'x-large'}/>
+                                                                <Badge borderRadius="full" px="2" colorScheme="teal">
+                                                                    About location
+                                                                </Badge>
+                                                            </Box>
+                                                            <Text
+                                                                as="h6"
+                                                                lineHeight="tight"
+                                                                color={cityCardTextColor}
+                                                                fontWeight="semibold"
+                                                                letterSpacing="wide"
+                                                                fontSize="xs"
+                                                                textTransform="uppercase"
+                                                                noOfLines={1}>{forecast.city.timezone} &bull; timezone</Text>
+                                                        </Box>
+
+                                                        <Divider my={2}/>
+                                                        <Stack direction={['column', 'row']}
+                                                               justifyContent={'space-between'}>
+                                                            <Box display={'flex'} alignItems={'center'}>
+                                                                {forecast.city.coord.lon}
+                                                                <Box as="span" color={cityCardTextColor} fontSize="sm">
+                                                                    &bull; Longitude
+                                                                </Box>
+                                                            </Box>
+                                                            <Box display={'flex'} alignItems={'center'}>
+                                                                {forecast.city.coord.lat}
+                                                                <Box as="span" color={cityCardTextColor} fontSize="sm">
+                                                                    &bull; Latitude
+                                                                </Box>
+                                                            </Box>
+                                                        </Stack>
+                                                    </Box>
+                                                </Box>
+                                            </GridItem>
+                                        </Grid>
+                                    </GridItem>
+                                    <GridItem colSpan={{base:12,lg:7}}>
+                                        <Box>
+                                            <Heading fontSize={'sm'}>Forecast for the next 15 days</Heading>
+                                            <Divider mt={1} mb={5}/>
+                                            <Grid templateColumns={'repeat(12,1fr)'} gap={6}>
+                                                {forecast.list.map((item: any) => (
+                                                    <GridItem colSpan={{base: 12, sm: 6, md: 3, lg: 4, xl: 3}}
+                                                              key={item.dt_txt}>
+                                                        <Box py={3} borderRadius="lg">
+                                                            <Box display="flex" alignItems="center"
+                                                                 justifyContent={'space-between'}>
+                                                                <Stack direction={'column'} spacing={0}
+                                                                       justifyContent={'center'}>
+                                                                    <Box
+
+                                                                        color={weatherCardTextColor}
+                                                                        fontWeight="semibold"
+                                                                        letterSpacing="wide"
+                                                                        fontSize="xs"
+                                                                        textTransform="uppercase"
+                                                                    >
+                                                                        {dayjs(item.dt_txt).format('DD/MM - HH:mm')}
+                                                                    </Box>
+                                                                    <Text color="gray.500"
+                                                                          fontWeight="semibold"
+                                                                          letterSpacing="wide"
+                                                                          fontSize="x-small"
+                                                                          textTransform="uppercase">{item.weather[0].description}</Text>
+                                                                </Stack>
+                                                                <Tooltip label="Show more">
+                                                                    <Box cursor={'pointer'}>
+                                                                        <Icon as={AiOutlineInfoCircle}/>
+                                                                    </Box>
+                                                                </Tooltip>
+                                                            </Box>
+
+                                                            <Divider my={2}/>
+                                                            <Stack direction={['column']}
+                                                                   justifyContent={'space-between'}>
+                                                                <Tooltip label="Temperature">
+                                                                    <Box display={'flex'} alignItems={'center'}>
+                                                                        <Icon as={TbTemperature} me={2}
+                                                                              fontSize={'large'}/>
+                                                                        {(item.main.temp).toFixed(2)}°C
+                                                                    </Box>
+                                                                </Tooltip>
+                                                                <Tooltip label="Pressure">
+                                                                    <Box display={'flex'} alignItems={'center'}>
+                                                                        <Icon as={TiWeatherWindy} me={2}
+                                                                              fontSize={'large'}/>
+                                                                        {item.main.pressure} hPa
+                                                                    </Box>
+                                                                </Tooltip>
+                                                                <Tooltip label="Humidity">
+                                                                    <Box display={'flex'} alignItems={'center'}>
+                                                                        <Icon as={IoWaterOutline} me={2}
+                                                                              fontSize={'large'}/>
+                                                                        {item.main.humidity}%
+                                                                    </Box>
+                                                                </Tooltip>
+                                                            </Stack>
+                                                        </Box>
+                                                    </GridItem>
+                                                ))}
+                                            </Grid>
+                                        </Box>
+                                    </GridItem>
+                                </Grid>
                             </Stack>
                         </GridItem>
                     }
