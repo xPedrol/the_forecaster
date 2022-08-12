@@ -32,21 +32,11 @@ import {BiSearchAlt} from "react-icons/bi";
 const Home: NextPage = () => {
     const [longitude, setLongitude] = useState<number>();
     const [latitude, setLatitude] = useState<number>();
-    const [permission, setPermission] = useState<string>();
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(function (position) {
             setLongitude(position.coords.longitude);
             setLatitude(position.coords.latitude);
         });
-        navigator.permissions.query({name: "geolocation"})
-            .then(function (result) {
-                setPermission(result.state);
-                if (result.state === "granted") {
-                    console.warn("geolocation permission granted");
-                } else {
-                    console.warn("geolocation permission denied");
-                }
-            });
     }, []);
     const {data, isLoading, isFetched} = useQuery('forecast_last_15_days', async () => {
         const data = await last15Days(latitude, longitude);
@@ -56,7 +46,6 @@ const Home: NextPage = () => {
     });
     return (
         <Layout title={'The Forecaster'}>
-            {permission}
             <Flex justifyContent={'center'} mt={{base: 50, md: 100}}>
                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}>
                     <GridItem colSpan={{base: 12, md: 4}}>
@@ -99,9 +88,16 @@ const Home: NextPage = () => {
                         </FormControl>
                     </GridItem>
                     <GridItem colSpan={{base: 12}}>
-                        <Alert status="success" variant="solid" backgroundColor={'teal.400'}>
-                            <Icon as={BsCheckCircleFill} me={2}/>
-                            The standard forecast will use your current location if you give permission to access it.
+                        <Alert status="success" variant="solid" backgroundColor={'teal.400'} display={'block'}>
+                            <Box display={'flex'} alignItems={'center'}>
+                                <Icon as={BsCheckCircleFill} me={2}/>
+                                <Box>
+                                    <Text>The standard forecast will use your current location if you give permission to
+                                        access it.</Text>
+                                    <Text fontSize={'sm'}>If you are on a mobile device, you will need to active the
+                                        devide location and reload the page.</Text>
+                                </Box>
+                            </Box>
                         </Alert>
                     </GridItem>
                     {data &&
