@@ -102,12 +102,13 @@ const Home: NextPage = () => {
     const onCountryChange = (e: any) => {
         setCountry(e.target.value);
         setState('');
+        clearCity();
         // refetchStates();
     };
 
     const onStateChange = (e: any) => {
         setState(e.target.value);
-        setCity('');
+        clearCity();
     };
 
     const onCityChange = (e: any) => {
@@ -115,6 +116,11 @@ const Home: NextPage = () => {
         setLongitude(undefined);
         setLatitude(undefined);
     };
+    const clearCity = () => {
+        setCity('');
+        setLongitude(undefined);
+        setLatitude(undefined);
+    }
 
     return (
         <Layout title={'The Forecaster'}>
