@@ -10,6 +10,8 @@ const Layout = ({children, title}: LayoutProps) => {
     return (
         <>
             <Head>
+                <meta name="description" content={'This project is an app to get forecast of cities around the world'}/>
+                <link rel="icon" type="image/png" href="/images/project_icon.png"/>
                 <title>{title}</title>
             </Head>
             <Container maxW={'7xl'} width={'100%'}>

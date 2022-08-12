@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import {
     Alert,
     Badge,
-    Box,
+    Box, Button,
     Divider,
     Flex,
     FormControl,
@@ -16,7 +16,7 @@ import {
     Spinner,
     Stack,
     Text,
-    Tooltip
+    Tooltip, useColorMode, useColorModeValue
 } from "@chakra-ui/react";
 import {useQuery} from 'react-query';
 import {getLast15Days, getLast15DaysByCityName} from "../services/forecast";
@@ -30,8 +30,12 @@ import {AiOutlineInfoCircle} from "react-icons/ai";
 import {useEffect, useState} from "react";
 import {BiSearchAlt} from "react-icons/bi";
 import {getCitiesByCountryAndState, getCountries, getStatesByCountry} from "../services/geoLocation";
+import {FaRegMoon, FaRegSun} from "react-icons/fa";
 
 const Home: NextPage = () => {
+    const { toggleColorMode,colorMode } = useColorMode();
+    const weatherCardTextColor = useColorModeValue('gray.700', 'gray.300');
+    const cityCardTextColor = useColorModeValue('gray.600', 'gray.400');
     const [longitude, setLongitude] = useState<number>();
     const [latitude, setLatitude] = useState<number>();
     const [country, setCountry] = useState<string>('');
@@ -178,15 +182,24 @@ const Home: NextPage = () => {
                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'} mt={5}>
                     <GridItem colSpan={{base: 12}}>
                         <Alert status="success" variant="solid" backgroundColor={'teal.400'} display={'block'}>
-                            <Box display={'flex'} alignItems={'center'}>
-                                <Icon as={BsCheckCircleFill} me={2}/>
-                                <Box>
-                                    <Text>The standard forecast will use your current location if you give permission to
-                                        access it.</Text>
-                                    <Text fontSize={'sm'}>If you are on a mobile device, you will need to active the
-                                        devide location and reload the page.</Text>
+                            <Flex justifyContent={'space-between'} alignItems={'center'}>
+                                <Box display={'flex'} alignItems={'center'}>
+                                    <Icon as={BsCheckCircleFill} me={2}/>
+                                    <Box>
+                                        <Text>The standard forecast will use your current location if you give permission to
+                                            access it.</Text>
+                                        <Text fontSize={'sm'}>If you are on a mobile device, you need to active the
+                                            device location and reload the page.</Text>
+                                    </Box>
                                 </Box>
-                            </Box>
+                                <Tooltip label={'Change page color'}>
+                                    <Button onClick={toggleColorMode} colorScheme={'teal'} variant='solid'>
+                                        {colorMode === 'dark' ?
+                                            <Icon as={FaRegSun}/> : <Icon as={FaRegMoon}/>
+                                        }
+                                    </Button>
+                                </Tooltip>
+                            </Flex>
                         </Alert>
                     </GridItem>
                     {forecast &&
@@ -206,7 +219,7 @@ const Home: NextPage = () => {
                                                 <Text
                                                     as="h6"
                                                     lineHeight="tight"
-                                                    color="gray.500"
+                                                    color={cityCardTextColor}
                                                     fontWeight="semibold"
                                                     letterSpacing="wide"
                                                     fontSize="xs"
@@ -226,14 +239,14 @@ const Home: NextPage = () => {
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     <Icon as={BsSunrise} me={2} fontSize={'x-large'}/>
                                                     {dayjs.unix(forecast.city.sunrise).format('HH:mm ')}
-                                                    <Box as="span" color="gray.600" fontSize="sm">
+                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
                                                         &bull; Sunrise
                                                     </Box>
                                                 </Box>
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     <Icon as={BsSunset} me={2} fontSize={'x-large'}/>
                                                     {dayjs.unix(forecast.city.sunset).format('HH:mm ')}
-                                                    <Box as="span" color="gray.600" fontSize="sm">
+                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
                                                         &bull; Sunset
                                                     </Box>
                                                 </Box>
@@ -253,7 +266,7 @@ const Home: NextPage = () => {
                                                 <Text
                                                     as="h6"
                                                     lineHeight="tight"
-                                                    color="gray.500"
+                                                    color={cityCardTextColor}
                                                     fontWeight="semibold"
                                                     letterSpacing="wide"
                                                     fontSize="xs"
@@ -265,13 +278,13 @@ const Home: NextPage = () => {
                                             <Stack direction={['column', 'row']} justifyContent={'space-between'}>
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     {forecast.city.coord.lon}
-                                                    <Box as="span" color="gray.600" fontSize="sm">
+                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
                                                         &bull; Longitude
                                                     </Box>
                                                 </Box>
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     {forecast.city.coord.lat}
-                                                    <Box as="span" color="gray.600" fontSize="sm">
+                                                    <Box as="span" color={cityCardTextColor} fontSize="sm">
                                                         &bull; Latitude
                                                     </Box>
                                                 </Box>
@@ -292,7 +305,8 @@ const Home: NextPage = () => {
                                                         <Stack direction={'column'} spacing={0}
                                                                justifyContent={'center'}>
                                                             <Box
-                                                                color="gray.700"
+
+                                                                color={weatherCardTextColor}
                                                                 fontWeight="semibold"
                                                                 letterSpacing="wide"
                                                                 fontSize="xs"
@@ -318,7 +332,7 @@ const Home: NextPage = () => {
                                                         <Tooltip label="Temperature">
                                                             <Box display={'flex'} alignItems={'center'}>
                                                                 <Icon as={TbTemperature} me={2} fontSize={'large'}/>
-                                                                {(item.main.temp - 273.16).toFixed(2)}°C
+                                                                {(item.main.temp).toFixed(2)}°C
                                                             </Box>
                                                         </Tooltip>
                                                         <Tooltip label="Pressure">

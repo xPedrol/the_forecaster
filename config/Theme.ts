@@ -1,4 +1,4 @@
-import {extendTheme} from "@chakra-ui/react";
+import {extendTheme, ThemeConfig} from "@chakra-ui/react";
 
 const colors = {
     brand: {
@@ -7,9 +7,13 @@ const colors = {
         700: '#2a69ac',
     },
 };
+const config: ThemeConfig = {
+    initialColorMode: 'dark',
+    useSystemColorMode: false,
+};
 const fonts = {
     body: 'Roboto Condensed, sans-serif',
     heading: 'Roboto Condensed, sans-serif',
 };
-const theme = extendTheme({colors, fonts});
+const theme = extendTheme({config, colors, fonts});
 export default theme;

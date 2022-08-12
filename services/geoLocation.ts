@@ -1,4 +1,4 @@
-import instance from "../config/HttpClient";
+import instance from "../config/httpClient";
 import {AxiosResponse} from "axios";
 
 export const getCountries = (): Promise<AxiosResponse<any>> => {
