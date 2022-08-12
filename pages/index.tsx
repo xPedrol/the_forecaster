@@ -4,9 +4,10 @@ import {
     Alert,
     Badge,
     Box,
+    Button,
     Divider,
     Flex,
-    FormControl,
+    FormControl, FormHelperText,
     FormLabel,
     Grid,
     GridItem,
@@ -18,7 +19,7 @@ import {
     Tooltip
 } from "@chakra-ui/react";
 import {useQuery} from 'react-query';
-import {last15Days} from "../services/forecast";
+import {getLast15Days} from "../services/forecast";
 import {Icon} from "@chakra-ui/icons";
 import dayjs from "dayjs";
 import {BsCheckCircleFill, BsFillGeoAltFill, BsSunrise, BsSunset} from "react-icons/bs";
@@ -28,65 +29,145 @@ import {IoWaterOutline} from "react-icons/io5";
 import {AiOutlineInfoCircle} from "react-icons/ai";
 import {useEffect, useState} from "react";
 import {BiSearchAlt} from "react-icons/bi";
+import {getCitiesByCountryAndState, getCountries, getStatesByCountry} from "../services/geoLocation";
+import {string} from "prop-types";
 
+type FormData = {
+    country: string;
+    state: string;
+    city: string;
+}
 const Home: NextPage = () => {
     const [longitude, setLongitude] = useState<number>();
     const [latitude, setLatitude] = useState<number>();
+    const [country, setCountry] = useState<string>('');
+    const [state, setState] = useState<string>('');
+    const [city, setCity] = useState<string>('');
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(function (position) {
             setLongitude(position.coords.longitude);
             setLatitude(position.coords.latitude);
         });
     }, []);
-    const {data, isLoading, isFetched} = useQuery('forecast_last_15_days', async () => {
-        const data = await last15Days(latitude, longitude);
+    const {
+        data: forecast,
+        isLoading: isLoadingForecast,
+        isFetched: isForecastFetched,
+        refetch: refetchForecast
+    } = useQuery('forecast_last_15_days', async () => {
+        const data = await getLast15Days(latitude, longitude);
         return data.data;
     }, {
-        enabled: !!latitude && !!longitude
+        enabled: !!latitude && !!longitude,
+        refetchOnWindowFocus: false
     });
+    const {
+        data: countries,
+        isLoading: isLoadingCountries,
+        isFetched: isCountriesFetched
+    } = useQuery('countries', async () => {
+        const data = await getCountries();
+        return data.data;
+    }, {
+        refetchOnWindowFocus: false,
+        refetchInterval: false
+    });
+    const {
+        data: states,
+        isLoading: isLoadingStates,
+        isFetched: isStatesFetched,
+        refetch: refetchStates
+    } = useQuery(['states', country], async () => {
+        const data = await getStatesByCountry(country);
+        return data.data;
+    }, {
+        refetchOnWindowFocus: false,
+        refetchInterval: false,
+        enabled: !!country,
+    });
+    const {
+        data: cities,
+        isLoading: isLoadingCities,
+        isFetched: isCitiesFetched,
+        refetch: refetchCities
+    } = useQuery(['cities', country, state], async () => {
+        const data = await getCitiesByCountryAndState(country, state);
+        return data.data;
+    }, {
+        refetchOnWindowFocus: false,
+        refetchInterval: false,
+        enabled: !!country && !!state,
+    });
+
+    const onCountryChange = (e: any) => {
+        setCountry(e.target.value);
+        setState('');
+        // refetchStates();
+    };
+
+    const onStateChange = (e: any) => {
+        setState(e.target.value);
+        setCity('');
+    };
+
+    const onCityChange = (e: any) => {
+        setCity(e.target.value);
+    };
+
     return (
         <Layout title={'The Forecaster'}>
-            <Flex justifyContent={'center'} mt={{base: 50, md: 100}}>
+            <Flex justifyContent={'center'} mt={{base: 50, md: 100}} flexDirection={'column'}>
                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}>
                     <GridItem colSpan={{base: 12, md: 4}}>
                         <FormControl>
                             <FormLabel>
-                                Country
+                                <Flex justifyContent={'space-between'} alignItems={'center'}>
+                                    <Text>Country</Text>
+                                    {isLoadingCountries && <FormHelperText>Loading...</FormHelperText>}
+                                </Flex>
                             </FormLabel>
-                            <Select>
-                                <option disabled={true}>Select a Country...</option>
-                                {/*{states.map((state) =>*/}
-                                {/*    <option key={state.code} value={state.code}>{state.name}</option>*/}
-                                {/*)}*/}
+                            <Select onChange={onCountryChange} defaultValue={''} disabled={isLoadingCountries}>
+                                <option disabled={true} value={''}>Select a Country...</option>
+                                {countries && countries.map((country: any) =>
+                                    <option key={country.iso2} value={country.iso2}>{country.name}</option>
+                                )}
                             </Select>
                         </FormControl>
                     </GridItem>
                     <GridItem colSpan={{base: 12, md: 4}}>
                         <FormControl>
                             <FormLabel>
-                                State
+                                <Flex justifyContent={'space-between'} alignItems={'center'}>
+                                    <Text>State</Text>
+                                    {isLoadingStates && <FormHelperText>Loading...</FormHelperText>}
+                                </Flex>
                             </FormLabel>
-                            <Select>
-                                <option disabled={true}>Select a State...</option>
-                                {/*{states.map((state) =>*/}
-                                {/*    <option key={state.code} value={state.code}>{state.name}</option>*/}
-                                {/*)}*/}
+                            <Select onChange={onStateChange} defaultValue={''} disabled={!country || isLoadingStates}>
+                                <option value={''}>Select a State...</option>
+                                {states && states.map((state: any) =>
+                                    <option key={state.iso2} value={state.iso2}>{state.name}</option>
+                                )}
                             </Select>
                         </FormControl>
                     </GridItem>
                     <GridItem colSpan={{base: 12, md: 4}}>
                         <FormControl>
                             <FormLabel>
-                                City
+                                <Flex justifyContent={'space-between'} alignItems={'center'}>
+                                    <Text>City</Text>
+                                    {isLoadingCities && <FormHelperText>Loading...</FormHelperText>}
+                                </Flex>
                             </FormLabel>
-                            <Select>
-                                <option disabled={true}>Select a State...</option>
-                                {/*{states.map((state) =>*/}
-                                {/*    <option key={state.code} value={state.code}>{state.name}</option>*/}
-                                {/*)}*/}
+                            <Select defaultValue={''} disabled={!state || isLoadingCities}>
+                                <option value={''}>Select a City...</option>
+                                {cities && cities.map((city: any) =>
+                                    <option key={city.id} value={city.id}>{city.name}</option>
+                                )}
                             </Select>
                         </FormControl>
                     </GridItem>
+                </Grid>
+                <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'} mt={5}>
                     <GridItem colSpan={{base: 12}}>
                         <Alert status="success" variant="solid" backgroundColor={'teal.400'} display={'block'}>
                             <Box display={'flex'} alignItems={'center'}>
@@ -100,7 +181,7 @@ const Home: NextPage = () => {
                             </Box>
                         </Alert>
                     </GridItem>
-                    {data &&
+                    {forecast &&
                         <GridItem colSpan={12} mt={7}>
                             <Stack spacing={4} direction={{base: 'column', lg: 'row'}}>
                                 <Stack justifyContent={{base: 'center', lg: 'normal'}}
@@ -111,7 +192,7 @@ const Home: NextPage = () => {
                                             <Box display="flex" alignItems="center" justifyContent={'space-between'}>
                                                 <Box display="flex">
                                                     <Badge borderRadius="full" px="2" colorScheme="teal">
-                                                        {data.city.name}
+                                                        {forecast.city.name}
                                                     </Badge>
                                                 </Box>
                                                 <Text
@@ -122,21 +203,21 @@ const Home: NextPage = () => {
                                                     letterSpacing="wide"
                                                     fontSize="xs"
                                                     textTransform="uppercase"
-                                                    noOfLines={1}>{data.city.population} &bull; population</Text>
+                                                    noOfLines={1}>{forecast.city.population} &bull; population</Text>
                                             </Box>
 
                                             <Divider my={2}/>
                                             <Stack direction={['column', 'row']} justifyContent={'space-between'}>
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     <Icon as={BsSunrise} me={2} fontSize={'x-large'}/>
-                                                    {dayjs.unix(data.city.sunrise).format('HH:mm ')}
+                                                    {dayjs.unix(forecast.city.sunrise).format('HH:mm ')}
                                                     <Box as="span" color="gray.600" fontSize="sm">
                                                         &bull; Sunrise
                                                     </Box>
                                                 </Box>
                                                 <Box display={'flex'} alignItems={'center'}>
                                                     <Icon as={BsSunset} me={2} fontSize={'x-large'}/>
-                                                    {dayjs.unix(data.city.sunset).format('HH:mm ')}
+                                                    {dayjs.unix(forecast.city.sunset).format('HH:mm ')}
                                                     <Box as="span" color="gray.600" fontSize="sm">
                                                         &bull; Sunset
                                                     </Box>
@@ -162,19 +243,19 @@ const Home: NextPage = () => {
                                                     letterSpacing="wide"
                                                     fontSize="xs"
                                                     textTransform="uppercase"
-                                                    noOfLines={1}>{data.city.timezone} &bull; timezone</Text>
+                                                    noOfLines={1}>{forecast.city.timezone} &bull; timezone</Text>
                                             </Box>
 
                                             <Divider my={2}/>
                                             <Stack direction={['column', 'row']} justifyContent={'space-between'}>
                                                 <Box display={'flex'} alignItems={'center'}>
-                                                    {data.city.coord.lon}
+                                                    {forecast.city.coord.lon}
                                                     <Box as="span" color="gray.600" fontSize="sm">
                                                         &bull; Longitude
                                                     </Box>
                                                 </Box>
                                                 <Box display={'flex'} alignItems={'center'}>
-                                                    {data.city.coord.lat}
+                                                    {forecast.city.coord.lat}
                                                     <Box as="span" color="gray.600" fontSize="sm">
                                                         &bull; Latitude
                                                     </Box>
@@ -187,7 +268,7 @@ const Home: NextPage = () => {
                                     <Heading fontSize={'sm'}>Forecast for the next 15 days</Heading>
                                     <Divider mt={1} mb={5}/>
                                     <Grid templateColumns={'repeat(12,1fr)'} gap={6}>
-                                        {data.list.map((item: any) => (
+                                        {forecast.list.map((item: any) => (
                                             <GridItem colSpan={{base: 12, sm: 6, md: 3, lg: 4, xl: 3}}
                                                       key={item.dt_txt}>
                                                 <Box py={3} borderRadius="lg">
@@ -246,7 +327,7 @@ const Home: NextPage = () => {
                             </Stack>
                         </GridItem>
                     }
-                    {!data && isLoading &&
+                    {!forecast && isLoadingForecast &&
                         <GridItem colSpan={12} mt={7}>
                             <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
                                 <Spinner color={'teal'} size={'lg'}/>
@@ -259,7 +340,7 @@ const Home: NextPage = () => {
                             </Box>
                         </GridItem>
                     }
-                    {!data && !isLoading && isFetched &&
+                    {!forecast && !isLoadingForecast && isForecastFetched &&
                         <GridItem colSpan={12} mt={7}>
                             <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
                                 <Spinner color={'teal'} size={'lg'}/>
@@ -272,7 +353,7 @@ const Home: NextPage = () => {
                             </Box>
                         </GridItem>
                     }
-                    {!data && !isLoading && !isFetched &&
+                    {!forecast && !isLoadingForecast && !isForecastFetched &&
                         <GridItem colSpan={12} mt={7}>
                             <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
                                 <Icon as={BiSearchAlt} color={'teal'} fontSize={'xx-large'}/>
