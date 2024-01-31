@@ -8,16 +8,18 @@ export const getLast15Days = (lat: string | number | undefined, lon: string | nu
             lat,
             lon,
             units: 'metric',
-            appid: process.env.NEXT_PUBLIC_API_WEATHER_TOKEN
+            appid: process.env.NEXT_PUBLIC_API_WEATHER_TOKEN,
+            lang: 'pt_br'
         }
     });
 };
-export const getLast15DaysByCityName = (cityName:string): Promise<AxiosResponse<any>> => {
+export const getLast15DaysByCityName = (cityName: string): Promise<AxiosResponse<any>> => {
     return instance.get<any>(`${process.env.NEXT_PUBLIC_API_WEATHER_URL}/forecast`, {
         params: {
             q: cityName,
             units: 'metric',
-            appid: process.env.NEXT_PUBLIC_API_WEATHER_TOKEN
+            appid: process.env.NEXT_PUBLIC_API_WEATHER_TOKEN,
+            lang: 'pt_br'
         }
     });
 };

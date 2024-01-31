@@ -22,7 +22,7 @@ import {useQuery} from 'react-query';
 import {getLast15Days, getLast15DaysByCityName} from "../services/forecast";
 import {Icon} from "@chakra-ui/icons";
 import dayjs from "dayjs";
-import {BsCheckCircleFill, BsFillGeoAltFill, BsSunrise, BsSunset} from "react-icons/bs";
+import {BsCheckCircleFill, BsCloudRain, BsFillGeoAltFill, BsSunrise, BsSunset} from "react-icons/bs";
 import {TbTemperature} from "react-icons/tb";
 import {TiWeatherWindy} from "react-icons/ti";
 import {IoWaterOutline} from "react-icons/io5";
@@ -128,12 +128,12 @@ const Home: NextPage = () => {
                         <FormControl>
                             <FormLabel>
                                 <Flex justifyContent={'space-between'} alignItems={'center'}>
-                                    <Text>Country</Text>
-                                    {isLoadingCountries && <FormHelperText>Loading...</FormHelperText>}
+                                    <Text>País</Text>
+                                    {isLoadingCountries && <FormHelperText>Carregando...</FormHelperText>}
                                 </Flex>
                             </FormLabel>
                             <Select onChange={onCountryChange} defaultValue={''} disabled={isLoadingCountries}>
-                                <option disabled={true} value={''}>Select a Country...</option>
+                                <option disabled={true} value={''}>Selecione um país...</option>
                                 {countries && countries.map((country: any) =>
                                     <option key={country.iso2} value={country.iso2}>{country.name}</option>
                                 )}
@@ -144,12 +144,12 @@ const Home: NextPage = () => {
                         <FormControl>
                             <FormLabel>
                                 <Flex justifyContent={'space-between'} alignItems={'center'}>
-                                    <Text>State</Text>
-                                    {isLoadingStates && <FormHelperText>Loading...</FormHelperText>}
+                                    <Text>Estado/Província</Text>
+                                    {isLoadingStates && <FormHelperText>Carregando...</FormHelperText>}
                                 </Flex>
                             </FormLabel>
                             <Select onChange={onStateChange} defaultValue={''} disabled={!country || isLoadingStates}>
-                                <option value={''}>Select a State...</option>
+                                <option value={''}>Selecione um estado/província...</option>
                                 {states && states.map((state: any) =>
                                     <option key={state.iso2} value={state.iso2}>{state.name}</option>
                                 )}
@@ -160,12 +160,12 @@ const Home: NextPage = () => {
                         <FormControl>
                             <FormLabel>
                                 <Flex justifyContent={'space-between'} alignItems={'center'}>
-                                    <Text>City</Text>
-                                    {isLoadingCities && <FormHelperText>Loading...</FormHelperText>}
+                                    <Text>Município</Text>
+                                    {isLoadingCities && <FormHelperText>Carregando...</FormHelperText>}
                                 </Flex>
                             </FormLabel>
                             <Select defaultValue={''} disabled={!state || isLoadingCities} onChange={onCityChange}>
-                                <option value={''}>Select a City...</option>
+                                <option value={''}>Selecione um município...</option>
                                 {cities && cities.map((city: any) =>
                                     <option key={city.id} value={city.name}>{city.name}</option>
                                 )}
@@ -181,11 +181,10 @@ const Home: NextPage = () => {
                                 <Box display={'flex'} alignItems={'center'}>
                                     <Icon as={BsCheckCircleFill} me={2}/>
                                     <Box>
-                                        <Text>The standard forecast will use your current location if you give
-                                            permission to
-                                            access it.</Text>
-                                        <Text fontSize={'sm'}>If you are on a mobile device, you need to active the
-                                            device location and reload the page.</Text>
+                                        <Text>A previsão padrão usará sua localização atual se você der permissão para
+                                            acessá-la.</Text>
+                                        <Text fontSize={'sm'}>Se você estiver em um dispositivo móvel, é necessário
+                                            ativar a localização do dispositivo e recarregar a página.</Text>
                                     </Box>
                                 </Box>
                                 <Tooltip label={'Change page color'}>
@@ -203,8 +202,9 @@ const Home: NextPage = () => {
                         <GridItem colSpan={12} mt={7}>
                             <Stack spacing={4} direction={{base: 'column', lg: 'row'}}>
                                 <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}>
-                                    <GridItem colSpan={{base:12,lg:5}}>
-                                        <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'} position={'sticky'} top={5}>
+                                    <GridItem colSpan={{base: 12, lg: 5}}>
+                                        <Grid templateColumns={'repeat(12,1fr)'} gap={3} width={'100%'}
+                                              position={'sticky'} top={5}>
                                             <GridItem colSpan={{base: 12, md: 6, lg: 12}}>
                                                 <Box borderWidth="1px" borderRadius="lg" position={'sticky'} top={5}
                                                      overflow="hidden">
@@ -231,7 +231,7 @@ const Home: NextPage = () => {
                                                                     </>
                                                                     :
                                                                     <>N/A</>
-                                                                } &bull; population</Text>
+                                                                } &bull; POPULAÇÃO</Text>
                                                         </Box>
 
                                                         <Divider my={2}/>
@@ -241,14 +241,14 @@ const Home: NextPage = () => {
                                                                 <Icon as={BsSunrise} me={2} fontSize={'x-large'}/>
                                                                 {dayjs.unix(forecast.city.sunrise).format('HH:mm ')}
                                                                 <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                                    &bull; Sunrise
+                                                                    &bull; Nascer do sol
                                                                 </Box>
                                                             </Box>
                                                             <Box display={'flex'} alignItems={'center'}>
                                                                 <Icon as={BsSunset} me={2} fontSize={'x-large'}/>
                                                                 {dayjs.unix(forecast.city.sunset).format('HH:mm ')}
                                                                 <Box as="span" color={cityCardTextColor} fontSize="sm">
-                                                                    &bull; Sunset
+                                                                    &bull; Por do sol
                                                                 </Box>
                                                             </Box>
                                                         </Stack>
@@ -265,7 +265,7 @@ const Home: NextPage = () => {
                                                                 <Icon as={BsFillGeoAltFill} me={2}
                                                                       fontSize={'x-large'}/>
                                                                 <Badge borderRadius="full" px="2" colorScheme="teal">
-                                                                    About location
+                                                                    Sobre a localização
                                                                 </Badge>
                                                             </Box>
                                                             <Text
@@ -276,7 +276,8 @@ const Home: NextPage = () => {
                                                                 letterSpacing="wide"
                                                                 fontSize="xs"
                                                                 textTransform="uppercase"
-                                                                noOfLines={1}>{forecast.city.timezone} &bull; timezone</Text>
+                                                                noOfLines={1}>{forecast.city.timezone} &bull; FUSO
+                                                                HORÁRIO</Text>
                                                         </Box>
 
                                                         <Divider my={2}/>
@@ -300,9 +301,9 @@ const Home: NextPage = () => {
                                             </GridItem>
                                         </Grid>
                                     </GridItem>
-                                    <GridItem colSpan={{base:12,lg:7}}>
+                                    <GridItem colSpan={{base: 12, lg: 7}}>
                                         <Box>
-                                            <Heading fontSize={'sm'}>Forecast for the next 15 days</Heading>
+                                            <Heading fontSize={'sm'}>Previsão para os próximos 15 dias</Heading>
                                             <Divider mt={1} mb={5}/>
                                             <Grid templateColumns={'repeat(12,1fr)'} gap={6}>
                                                 {forecast.list.map((item: any) => (
@@ -329,31 +330,34 @@ const Home: NextPage = () => {
                                                                           fontSize="x-small"
                                                                           textTransform="uppercase">{item.weather[0].description}</Text>
                                                                 </Stack>
-                                                                <Tooltip label="Show more">
-                                                                    <Box cursor={'pointer'}>
-                                                                        <Icon as={AiOutlineInfoCircle}/>
-                                                                    </Box>
-                                                                </Tooltip>
+                                                                {/*<Tooltip label="Detalhes">*/}
+                                                                {/*    <Box cursor={'pointer'}>*/}
+                                                                {/*        <Icon as={AiOutlineInfoCircle}/>*/}
+                                                                {/*    </Box>*/}
+                                                                {/*</Tooltip>*/}
                                                             </Box>
 
                                                             <Divider my={2}/>
                                                             <Stack direction={['column']}
                                                                    justifyContent={'space-between'}>
-                                                                <Tooltip label="Temperature">
+                                                                <Tooltip label="Temperatura">
                                                                     <Box display={'flex'} alignItems={'center'}>
                                                                         <Icon as={TbTemperature} me={2}
                                                                               fontSize={'large'}/>
                                                                         {(item.main.temp).toFixed(2)}°C
                                                                     </Box>
                                                                 </Tooltip>
-                                                                <Tooltip label="Pressure">
+                                                                <Tooltip label="Probabilidade de chuva">
                                                                     <Box display={'flex'} alignItems={'center'}>
-                                                                        <Icon as={TiWeatherWindy} me={2}
+                                                                        <Icon as={BsCloudRain} me={2}
                                                                               fontSize={'large'}/>
-                                                                        {item.main.pressure} hPa
+                                                                        {!item.pop ?
+                                                                            <small>Sem resultado</small>
+                                                                            : `${Math.round(item.pop * 100)} %`}
+
                                                                     </Box>
                                                                 </Tooltip>
-                                                                <Tooltip label="Humidity">
+                                                                <Tooltip label="Humidade">
                                                                     <Box display={'flex'} alignItems={'center'}>
                                                                         <Icon as={IoWaterOutline} me={2}
                                                                               fontSize={'large'}/>
@@ -406,7 +410,7 @@ const Home: NextPage = () => {
                                     letterSpacing="wide"
                                     fontSize="xs"
                                     ms={2}
-                                    textTransform="uppercase">Choose a location to see the weather</Text>
+                                    textTransform="uppercase">Escolha um local para ver a previsão do tempo</Text>
                             </Box>
                         </GridItem>
                     }
